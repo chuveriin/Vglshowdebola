@@ -1,6 +1,7 @@
 import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useState } from "react";
 import Navbar from "./components/Navbar.jsx";
+import Footer from "./components/Footer.jsx";
 import Home from "./pages/Home.jsx";
 import Lanches from "./pages/Lanches.jsx";
 import Perifericos from "./pages/Perifericos.jsx";
@@ -22,6 +23,7 @@ function ProtectedRoute({ authenticated, children }) {
 }
 
 export default function App() {
+  const location = useLocation();
   const [authenticated, setAuthenticated] = useState(() => sessionStorage.getItem(AUTH_KEY) === "true");
   const [username, setUsername] = useState(() => sessionStorage.getItem(USER_KEY) || "admin");
   const [role, setRole] = useState(() => sessionStorage.getItem(ROLE_KEY) || "admin");
@@ -52,16 +54,19 @@ export default function App() {
 
   return <>
     {authenticated && <Navbar username={username} email={email} role={role} onLogout={logout} />}
-    <main id="conteudo" className="page"><Routes>
-      <Route path="/login" element={authenticated ? <Navigate to="/" replace /> : <Login onLogin={login} />} />
-      <Route path="/cadastro" element={authenticated ? <Navigate to="/" replace /> : <Register />} />
-      <Route path="/" element={<ProtectedRoute authenticated={authenticated}><Home /></ProtectedRoute>} />
-      <Route path="/lanches" element={<ProtectedRoute authenticated={authenticated}><Lanches /></ProtectedRoute>} />
-      <Route path="/perifericos" element={<ProtectedRoute authenticated={authenticated}><Perifericos /></ProtectedRoute>} />
-      <Route path="/carrinho" element={<ProtectedRoute authenticated={authenticated}><Carrinho username={username} /></ProtectedRoute>} />
-      <Route path="/meus-pedidos" element={<ProtectedRoute authenticated={authenticated}><MeusPedidos role={role} username={username} /></ProtectedRoute>} />
-      <Route path="/admin/pagamentos" element={<ProtectedRoute authenticated={authenticated}>{role === "admin" ? <ConfirmarPagamentos /> : <Navigate to="/" replace />}</ProtectedRoute>} />
-      <Route path="*" element={<ProtectedRoute authenticated={authenticated}><p>Página não encontrada. <Link to="/">Voltar ao início</Link>.</p></ProtectedRoute>} />
-    </Routes></main>
+    <main id="conteudo" className={location.pathname === "/" ? "page page-home-layout" : "page"}>
+      <Routes>
+        <Route path="/login" element={authenticated ? <Navigate to="/" replace /> : <Login onLogin={login} />} />
+        <Route path="/cadastro" element={authenticated ? <Navigate to="/" replace /> : <Register />} />
+        <Route path="/" element={<ProtectedRoute authenticated={authenticated}><Home /></ProtectedRoute>} />
+        <Route path="/lanches" element={<ProtectedRoute authenticated={authenticated}><Lanches /></ProtectedRoute>} />
+        <Route path="/perifericos" element={<ProtectedRoute authenticated={authenticated}><Perifericos /></ProtectedRoute>} />
+        <Route path="/carrinho" element={<ProtectedRoute authenticated={authenticated}><Carrinho username={username} /></ProtectedRoute>} />
+        <Route path="/meus-pedidos" element={<ProtectedRoute authenticated={authenticated}><MeusPedidos role={role} username={username} /></ProtectedRoute>} />
+        <Route path="/admin/pagamentos" element={<ProtectedRoute authenticated={authenticated}>{role === "admin" ? <ConfirmarPagamentos /> : <Navigate to="/" replace />}</ProtectedRoute>} />
+        <Route path="*" element={<ProtectedRoute authenticated={authenticated}><p>Página não encontrada. <Link to="/">Voltar ao início</Link>.</p></ProtectedRoute>} />
+      </Routes>
+    </main>
+    <Footer />
   </>;
 }
